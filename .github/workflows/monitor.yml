@@ -2,25 +2,34 @@ name: Monitor NexyonCloud services
 on:
   schedule:
     - cron: '*/5 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'config/services.json'
+      - 'scripts/monitor.mjs'
+      - '.github/workflows/monitor.yml'
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: nexyoncloud-monitor
+  cancel-in-progress: false
 jobs:
   monitor:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Check services and publish status
+      - name: Check all configured services
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/monitor.mjs
-      - name: Commit status changes
+      - name: Publish status data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/status.json
-          git diff --cached --quiet || (git commit -m "Update monitored service status" && git push)
+          git diff --cached --quiet || (git commit -m "chore: publish automatic service status" && git push)

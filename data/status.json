@@ -1,19 +1,19 @@
 {
-  "updatedAt": "2026-11-22T09:11:53.665Z",
+  "updatedAt": "2026-11-22T09:14:20.378Z",
   "checkIntervalMinutes": 5,
   "services": [
     {
       "id": "free-panel",
       "name": "Free Panel",
       "description": "Free hosting control panel",
-      "status": "unknown",
-      "monitored": false,
-      "responseMs": null,
-      "httpStatus": null,
-      "lastCheckAt": null,
-      "uptime24h": 20,
-      "uptime7d": 20,
-      "uptime30d": 20
+      "status": "operational",
+      "monitored": true,
+      "responseMs": 105,
+      "httpStatus": 403,
+      "lastCheckAt": "2026-11-22T09:14:20.378Z",
+      "uptime24h": 33.33,
+      "uptime7d": 33.33,
+      "uptime30d": 33.33
     },
     {
       "id": "paid-panel",
@@ -117,6 +117,11 @@
         "at": "2026-11-22T09:10:33.740Z",
         "ok": 1,
         "ms": 100
+      },
+      {
+        "at": "2026-11-22T09:14:20.378Z",
+        "ok": 1,
+        "ms": 105
       }
     ]
   }

@@ -24,8 +24,9 @@ async function loadStatus() {
     const stale = !updatedAt || Date.now() - updatedAt.getTime() > 12 * 60 * 1000;
 
     const down = services.some(service => service.monitored && service.status === "outage");
+    const pending = services.some(service => service.monitored && service.status === "unknown");
     const warning = services.some(service =>
-      service.monitored && ["degraded", "maintenance"].includes(service.status)
+      service.monitored && ["degraded", "maintenance", "unknown"].includes(service.status)
     );
 
     const overall = document.querySelector("#overall");
@@ -33,6 +34,7 @@ async function loadStatus() {
     overall.innerHTML = "<i></i>" + (
       stale ? "Monitoring checks are delayed" :
       down ? "Service disruption detected" :
+      pending ? "Waiting for the first health check" :
       warning ? "Some services need attention" :
       monitored.length ? "All monitored services operational" :
       "Monitoring setup in progress"
@@ -48,7 +50,9 @@ async function loadStatus() {
       const displayStatus = stale && service.monitored ? "unknown" : service.status;
       const displayLabel = stale && service.monitored
         ? "Check delayed"
-        : (labels[displayStatus] || displayStatus);
+        : service.monitored && displayStatus === "unknown"
+          ? "Awaiting first check"
+          : (labels[displayStatus] || displayStatus);
 
       return '<article class="service">' +
         '<div class="service-icon">◈</div>' +

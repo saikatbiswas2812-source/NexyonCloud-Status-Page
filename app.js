@@ -114,9 +114,10 @@ function uptimeFor(id,hours){
 }
 app.get("/",(req,res)=>res.render("index"));
 app.get("/api/status",(req,res)=>{
- const services=db.prepare("SELECT id,name,description,status,response_ms,updated_at,last_checked,url,enabled FROM services ORDER BY sort_order,id").all().map(s=>({
- ...s,monitored:!!s.url&&!!s.enabled,uptime24h:uptimeFor(s.id,24),uptime7d:uptimeFor(s.id,168),uptime30d:uptimeFor(s.id,720)
- }));
+ const services=db.prepare("SELECT id,name,description,status,response_ms,updated_at,last_checked,url,enabled FROM services ORDER BY sort_order,id").all().map(s=>{
+ const monitored=!!s.url&&!!s.enabled;const {url,enabled,...publicService}=s;
+ return {...publicService,monitored,uptime24h:uptimeFor(s.id,24),uptime7d:uptimeFor(s.id,168),uptime30d:uptimeFor(s.id,720)};
+ });
  const incidents=db.prepare("SELECT i.id,i.title,i.message,i.status,i.created_at,i.resolved_at,s.name service_name FROM incidents i LEFT JOIN services s ON s.id=i.service_id ORDER BY i.id DESC LIMIT 20").all();
  res.json({services,incidents,updatedAt:new Date().toISOString(),checkInterval:CHECK_EVERY});
 });

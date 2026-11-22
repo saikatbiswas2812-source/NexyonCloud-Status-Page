@@ -6,18 +6,28 @@ let services = [];
 const $ = id => document.getElementById(id);
 
 async function api(path, options = {}) {
-  const response = await fetch("https://api.github.com" + path, {
-    ...options,
-    cache: "no-store",
-    headers: {
-      Accept: "application/vnd.github+json",
-      Authorization: "Bearer " + token,
-      "X-GitHub-Api-Version": "2022-11-28",
-      "Cache-Control": "no-cache",
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
-      ...(options.headers || {})
-    }
-  });
+  let response;
+  try {
+    response = await fetch("https://api.github.com" + path, {
+      ...options,
+      cache: "no-store",
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: "Bearer " + token,
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Cache-Control": "no-cache",
+        ...(options.body ? { "Content-Type": "application/json" } : {}),
+        ...(options.headers || {})
+      }
+    });
+  } catch (cause) {
+    const error = new Error(
+      "Browser cannot reach api.github.com. This is a network/CORS/browser-extension block, not a GitHub token permission error. " +
+      "Try an Incognito window with extensions disabled, or allow api.github.com in your firewall/ad blocker."
+    );
+    error.cause = cause;
+    throw error;
+  }
   const body = await response.text();
   if (!response.ok) {
     let message = body;

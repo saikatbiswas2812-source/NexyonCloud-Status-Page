@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-22T09:48:41.085Z",
+  "updatedAt": "2026-11-22T09:49:03.669Z",
   "checkIntervalMinutes": 5,
   "services": [
     {
@@ -19,14 +19,14 @@
       "id": "paid-panel",
       "name": "Paid Panel",
       "description": "Premium hosting control panel",
-      "status": "outage",
+      "status": "unknown",
       "monitored": true,
-      "responseMs": 102,
-      "httpStatus": 403,
-      "lastCheckAt": "2026-11-22T09:48:41.085Z",
-      "uptime24h": 0,
-      "uptime7d": 0,
-      "uptime30d": 0
+      "responseMs": null,
+      "httpStatus": null,
+      "lastCheckAt": null,
+      "uptime24h": null,
+      "uptime7d": null,
+      "uptime30d": null
     },
     {
       "id": "vps-panel",
@@ -68,36 +68,6 @@
       "uptime30d": null
     }
   ],
-  "incidents": [
-    {
-      "title": "Free Panel recovered",
-      "message": "Automated health check succeeded in 100 ms.",
-      "serviceName": "Free Panel",
-      "status": "resolved",
-      "time": "2026-11-22T09:10:33.740Z"
-    },
-    {
-      "title": "Free Panel is degraded",
-      "message": "Automated health check result: HTTP 403.",
-      "serviceName": "Free Panel",
-      "status": "investigating",
-      "time": "2026-11-22T09:01:50.357Z"
-    },
-    {
-      "title": "Free Panel is down",
-      "message": "Automated HTTP health check failed.",
-      "serviceName": "Free Panel",
-      "status": "investigating",
-      "time": "2026-11-22T08:52:25.443Z"
-    }
-  ],
-  "history": {
-    "paid-panel": [
-      {
-        "at": "2026-11-22T09:48:41.085Z",
-        "ok": 0,
-        "ms": 102
-      }
-    ]
-  }
+  "incidents": [],
+  "history": {}
 }

@@ -1,0 +1,9 @@
+{
+  "services": [
+    {"id":"free-panel","name":"Free Panel","description":"Free hosting control panel","url":"","enabled":true,"status":"unknown"},
+    {"id":"paid-panel","name":"Paid Panel","description":"Premium hosting control panel","url":"","enabled":true,"status":"unknown"},
+    {"id":"vps-panel","name":"VPS Control Panel","description":"VPS management portal","url":"","enabled":true,"status":"unknown"},
+    {"id":"website","name":"Website","description":"NexyonCloud main website","url":"","enabled":true,"status":"unknown"},
+    {"id":"billing","name":"Billing Panel","description":"Customer billing and invoices","url":"","enabled":true,"status":"unknown"}
+  ]
+}

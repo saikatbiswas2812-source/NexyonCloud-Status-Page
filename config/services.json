@@ -6,7 +6,7 @@
       "description": "Free hosting control panel",
       "url": "https://gp.nexyoncloud.fun/auth/loginv",
       "enabled": true,
-      "status": "operational"
+      "status": "outage"
     },
     {
       "id": "paid-panel",

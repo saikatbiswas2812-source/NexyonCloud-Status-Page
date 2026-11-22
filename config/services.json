@@ -4,8 +4,8 @@
       "id": "free-panel",
       "name": "Free Panel",
       "description": "Free hosting control panel",
-      "url": "https://gp.nexyoncloud.fun/auth/loginv",
-      "enabled": true
+      "url": "",
+      "enabled": false
     },
     {
       "id": "paid-panel",

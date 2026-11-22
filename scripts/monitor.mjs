@@ -2,6 +2,8 @@ import fs from "node:fs/promises";
 import dns from "node:dns/promises";
 import net from "node:net";
 
+// Monitor revision: 2026-11-22 — run a fresh check after service configuration corrections.
+
 const config = JSON.parse(await fs.readFile("config/services.json", "utf8"));
 const outputFile = "data/status.json";
 let previous = { services: [], incidents: [], history: {} };

@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-22T09:14:44.888Z",
+  "updatedAt": "2026-11-22T09:19:08.387Z",
   "checkIntervalMinutes": 5,
   "services": [
     {
@@ -11,9 +11,9 @@
       "responseMs": null,
       "httpStatus": null,
       "lastCheckAt": null,
-      "uptime24h": 33.33,
-      "uptime7d": 33.33,
-      "uptime30d": 33.33
+      "uptime24h": null,
+      "uptime7d": null,
+      "uptime30d": null
     },
     {
       "id": "paid-panel",

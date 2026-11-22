@@ -1,16 +1,16 @@
 {
-  "updatedAt": "2026-11-22T09:01:50.357Z",
+  "updatedAt": "2026-11-22T09:08:11.546Z",
   "checkIntervalMinutes": 5,
   "services": [
     {
       "id": "free-panel",
       "name": "Free Panel",
       "description": "Free hosting control panel",
-      "status": "degraded",
-      "monitored": true,
-      "responseMs": 97,
-      "httpStatus": 403,
-      "lastCheckAt": "2026-11-22T09:01:50.357Z",
+      "status": "unknown",
+      "monitored": false,
+      "responseMs": null,
+      "httpStatus": null,
+      "lastCheckAt": null,
       "uptime24h": 0,
       "uptime7d": 0,
       "uptime30d": 0

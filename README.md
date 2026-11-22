@@ -1,14 +1,22 @@
 # NexyonCloud Status Page
 
-Public cyan/white service-status dashboard with private admin controls, automatic HTTP uptime checks, incident history, response times and optional Discord webhook alerts.
+A self-hosted public service-status page for NexyonCloud, with an admin control panel, automatic HTTP/HTTPS monitoring, uptime history, incidents and optional Discord webhook alerts.
+
+## Included
+- Responsive cyan/white dark dashboard
+- Public service status and incident timeline
+- Admin area protected by HTTP Basic Authentication
+- Add, edit, delete and manually set service status
+- Periodic HTTP health checks with timeout
+- Automatic outage/recovery incident records and Discord webhook alerts
+- Response time and 24-hour / 7-day / 30-day uptime statistics
+- SQLite persistence and health endpoint
+- PM2 and Nginx deployment examples
 
 ## Requirements
-- Ubuntu 22.04/24.04 or another Linux server
-- Node.js 20+
-- npm
-- A public domain with HTTPS recommended for production
+Ubuntu 22.04/24.04, Node.js 20+, npm and a domain name for HTTPS production deployment.
 
-## Install
+## Quick install
 ```bash
 git clone https://github.com/saikatbiswas2812-source/NexyonCloud-Status-Page.git
 cd NexyonCloud-Status-Page
@@ -18,29 +26,55 @@ nano .env
 npm start
 ``
 
-Set a unique long `ADMIN_PASSWORD` before starting. Configure `PORT`, `ADMIN_USER`, `ADMIN_PASSWORD`, `DISCORD_WEBHOOK_URL`, `CHECK_INTERVAL_SECONDS` (minimum 30), and `CHECK_TIMEOUT_MS` as needed.
+Set a long, unique `ADMIN_PASSWORD` in `.env` before exposing the server. The admin panel is at `/admin`; the browser will ask for the username and password. Public page: `/`. API: `/api/status`. Health check: `/health`.
 
-## Admin and monitoring
-- Public dashboard: `http://SERVER_IP:3000/`
-- Admin: `http://SERVER_IP:3000/admin` (HTTP Basic Auth; browser prompts for credentials)
-- Health endpoint: `/health`
-- API: `/api/status`
+## Configure service monitoring
+The five starter services are created automatically: Free Panel, Paid Panel, VPS Control Panel, Website and Billing Panel. Open Admin and set each service's public health-check URL. Use a URL that returns HTTP 2xx or 3xx when healthy. Checks run every `CHECK_INTERVAL_SECONDS` (minimum 30 seconds) and time out after `CHECK_TIMEOUT_MS`. A URL-less service is manual-only and is clearly marked as not monitored.
 
-In Admin, add each service's public HTTP/HTTPS health URL. The monitor performs GET requests on the configured interval. HTTP 2xx and 3xx count as healthy; errors, timeouts and other status codes count as outages. When a monitored service changes from healthy to down or recovers, an incident is recorded and an optional Discord webhook is notified. A service without a URL is not automatically monitored; it can be set manually.
+Uptime percentages are calculated from recorded checks; the 7-day and 30-day figures need time to accumulate. The monitor verifies HTTP reachability only. It does not log in to your hosting panels or validate their internal functions. Prefer dedicated `/health` endpoints where available.
 
-Uptime percentages are calculated from checks stored in SQLite for the last 24 hours, 7 days and 30 days. They become meaningful as checks accumulate. Keep the `status.db` file persistent and backed up.
+## Discord alerts
+Create a Discord webhook for the channel where status alerts should appear and set `DISCORD_WEBHOOK_URL` in `.env`. Keep the webhook secret; never publish it in GitHub.
 
-## Run in background with PM2
+## Run continuously with PM2
 ```bash
 sudo npm install -g pm2
-pm2 start app.js --name nexyoncloud-status
+pm2 start ecosystem.config.js
 pm2 save
 pm2 startup
 ``
-Run the command printed by `pm2 startup` to enable boot startup. View logs with `pm2 logs nexyoncloud-status`.
+Run the extra command printed by `pm2 startup`. Logs: `pm2 logs nexyoncloud-status`.
 
-## Production notes
-Put the app behind Nginx/Caddy and enable HTTPS before exposing the admin panel. Use a strong unique admin password, restrict admin access by firewall/IP allowlist where possible, keep Node.js updated, and back up `status.db`. Do not use private network URLs as monitor targets. This app checks HTTP endpoints; it does not log into provider dashboards or verify application-specific functionality beyond the configured URL response.
+## Nginx + HTTPS
+1. Point your domain's DNS A record to the VPS IP.
+2. Install Nginx and Certbot.
+3. Copy `nginx.conf.example` into `/etc/nginx/sites-available/nexyoncloud-status`, replace `status.example.com` with your domain.
+4. Enable the site, test Nginx, then issue a Let's Encrypt certificate with Certbot.
+5. Allow inbound 80/443 and keep app port 3000 private to localhost.
 
-## Default services
-Free Panel, Paid Panel, VPS Control Panel, Website and Billing Panel are pre-created. Add the correct public health URL for each from the admin page to activate automatic monitoring.
+```bash
+sudo apt update && sudo apt install -y nginx certbot python3-certbot-nginx
+sudo ln -s /etc/nginx/sites-available/nexyoncloud-status /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+sudo certbot --nginx -d status.example.com
+``
+
+## Security and operations
+- Use a strong unique admin password and HTTPS.
+- Do not expose port 3000 publicly once Nginx is configured; bind/restrict it to localhost using firewall rules.
+- Keep `.env`, `status.db`, and backups private.
+- Back up the SQLite database regularly.
+- Only monitor public URLs you own or are authorized to check.
+- The application rejects obvious local/private monitor targets, but should still be deployed behind a firewall and kept updated.
+
+## Backup
+```bash
+mkdir -p backups
+sqlite3 status.db ".backup 'backups/status-$(date +%F).db'"
+``
+
+## Troubleshooting
+- Check app logs: `pm2 logs nexyoncloud-status`
+- Check process: `pm2 status`
+- Check health locally: `curl http://127.0.0.1:3000/health`
+- If SQLite native module fails to install, run `sudo apt install -y build-essential python3` then `npm install` again.

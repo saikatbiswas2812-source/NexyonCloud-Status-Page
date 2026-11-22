@@ -1,12 +1,63 @@
 {
-  "updatedAt": null,
+  "updatedAt": "2026-11-22T08:48:31.690Z",
   "checkIntervalMinutes": 5,
   "services": [
-    {"id":"free-panel","name":"Free Panel","description":"Free hosting control panel","status":"unknown","monitored":false,"responseMs":null,"uptime24h":null,"uptime7d":null,"uptime30d":null},
-    {"id":"paid-panel","name":"Paid Panel","description":"Premium hosting control panel","status":"unknown","monitored":false,"responseMs":null,"uptime24h":null,"uptime7d":null,"uptime30d":null},
-    {"id":"vps-panel","name":"VPS Control Panel","description":"VPS management portal","status":"unknown","monitored":false,"responseMs":null,"uptime24h":null,"uptime7d":null,"uptime30d":null},
-    {"id":"website","name":"Website","description":"NexyonCloud main website","status":"unknown","monitored":false,"responseMs":null,"uptime24h":null,"uptime7d":null,"uptime30d":null},
-    {"id":"billing","name":"Billing Panel","description":"Customer billing and invoices","status":"unknown","monitored":false,"responseMs":null,"uptime24h":null,"uptime7d":null,"uptime30d":null}
+    {
+      "id": "free-panel",
+      "name": "Free Panel",
+      "description": "Free hosting control panel",
+      "status": "operational",
+      "monitored": false,
+      "responseMs": null,
+      "uptime24h": null,
+      "uptime7d": null,
+      "uptime30d": null
+    },
+    {
+      "id": "paid-panel",
+      "name": "Paid Panel",
+      "description": "Premium hosting control panel",
+      "status": "unknown",
+      "monitored": false,
+      "responseMs": null,
+      "uptime24h": null,
+      "uptime7d": null,
+      "uptime30d": null
+    },
+    {
+      "id": "vps-panel",
+      "name": "VPS Control Panel",
+      "description": "VPS management portal",
+      "status": "unknown",
+      "monitored": false,
+      "responseMs": null,
+      "uptime24h": null,
+      "uptime7d": null,
+      "uptime30d": null
+    },
+    {
+      "id": "website",
+      "name": "Website",
+      "description": "NexyonCloud main website",
+      "status": "unknown",
+      "monitored": false,
+      "responseMs": null,
+      "uptime24h": null,
+      "uptime7d": null,
+      "uptime30d": null
+    },
+    {
+      "id": "billing",
+      "name": "Billing Panel",
+      "description": "Customer billing and invoices",
+      "status": "unknown",
+      "monitored": false,
+      "responseMs": null,
+      "uptime24h": null,
+      "uptime7d": null,
+      "uptime30d": null
+    }
   ],
-  "incidents": []
+  "incidents": [],
+  "history": {}
 }

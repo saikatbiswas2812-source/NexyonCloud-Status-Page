@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-22T09:54:04.595Z",
+  "updatedAt": "2026-11-22T09:54:23.848Z",
   "checkIntervalMinutes": 5,
   "services": [
     {
@@ -19,14 +19,14 @@
       "id": "paid-panel",
       "name": "Paid Panel",
       "description": "Premium hosting control panel",
-      "status": "outage",
+      "status": "unknown",
       "monitored": true,
-      "responseMs": 90,
-      "httpStatus": 403,
-      "lastCheckAt": "2026-11-22T09:54:04.595Z",
-      "uptime24h": 0,
-      "uptime7d": 0,
-      "uptime30d": 0
+      "responseMs": null,
+      "httpStatus": null,
+      "lastCheckAt": null,
+      "uptime24h": null,
+      "uptime7d": null,
+      "uptime30d": null
     },
     {
       "id": "vps-panel",
@@ -69,13 +69,5 @@
     }
   ],
   "incidents": [],
-  "history": {
-    "paid-panel": [
-      {
-        "at": "2026-11-22T09:54:04.595Z",
-        "ok": 0,
-        "ms": 90
-      }
-    ]
-  }
+  "history": {}
 }

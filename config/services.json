@@ -5,40 +5,35 @@
       "name": "Free Panel",
       "description": "Free hosting control panel",
       "url": "https://gp.nexyoncloud.fun/auth/loginv",
-      "enabled": true,
-      "status": "outage"
+      "enabled": true
     },
     {
       "id": "paid-panel",
       "name": "Paid Panel",
       "description": "Premium hosting control panel",
       "url": "",
-      "enabled": true,
-      "status": "unknown"
+      "enabled": false
     },
     {
       "id": "vps-panel",
       "name": "VPS Control Panel",
       "description": "VPS management portal",
       "url": "",
-      "enabled": true,
-      "status": "unknown"
+      "enabled": false
     },
     {
       "id": "website",
       "name": "Website",
       "description": "NexyonCloud main website",
       "url": "",
-      "enabled": true,
-      "status": "unknown"
+      "enabled": false
     },
     {
       "id": "billing",
       "name": "Billing Panel",
       "description": "Customer billing and invoices",
       "url": "",
-      "enabled": true,
-      "status": "unknown"
+      "enabled": false
     }
   ]
 }

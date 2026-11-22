@@ -51,6 +51,7 @@ if(!db.prepare("SELECT COUNT(*) n FROM services").get().n){
 app.set("view engine","ejs");app.set("views",path.join(__dirname,"views"));
 app.use(helmet({contentSecurityPolicy:false}));
 app.use(express.urlencoded({extended:false,limit:"30kb"}));app.use(express.json({limit:"30kb"}));
+app.use((req,res,next)=>{if(req.method!=="POST")return next();const origin=req.get("origin")||req.get("referer");if(!origin)return res.status(403).send("Request origin missing");try{if(new URL(origin).host!==req.get("host"))return res.status(403).send("Cross-site request blocked");}catch{return res.status(403).send("Invalid request origin");}next();});
 app.use(express.static(path.join(__dirname,"public")));
 app.use(rateLimit({windowMs:15*60*1000,limit:300,standardHeaders:true,legacyHeaders:false}));
 function adminOnly(req,res,next){
@@ -91,7 +92,7 @@ async function checkService(s){
  db.prepare("INSERT INTO checks(service_id,ok,response_ms) VALUES(?,?,?)").run(s.id,ok,ms);
  const status=ok?"operational":"outage";
  db.prepare("UPDATE services SET status=?,response_ms=?,updated_at=CURRENT_TIMESTAMP,last_checked=CURRENT_TIMESTAMP WHERE id=?").run(status,ms,s.id);
- if(old!=="unknown"&&old!==status){
+ if(old!==status){
   if(status==="outage"){
    db.prepare("INSERT INTO incidents(service_id,title,message,status) VALUES(?,?,?,'investigating')").run(s.id,s.name+" is down","Automated monitor failed"+(code?" (HTTP "+code+")":"")+".");
    notify("🔴 "+s.name+" is DOWN. NexyonCloud monitoring detected a failed health check.");

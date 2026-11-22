@@ -4,15 +4,15 @@
       "id": "free-panel",
       "name": "Free Panel",
       "description": "Free hosting control panel",
-      "url": "https://gp.nexyoncloud.fun/auth/login",
-      "enabled": true
+      "url": "",
+      "enabled": false
     },
     {
       "id": "paid-panel",
       "name": "Paid Panel",
       "description": "Premium hosting control panel",
-      "url": "",
-      "enabled": false
+      "url": "https://gp.nexyoncloud.fun/auth/login",
+      "enabled": true
     },
     {
       "id": "vps-panel",

@@ -60,7 +60,7 @@ async function checkUrl(raw) {
       headers: { "user-agent": "NexyonCloud-Status-Monitor/2.0", "cache-control": "no-cache" }
     });
     const ms = Date.now() - started;
-    if (response.status >= 200 && response.status < 400) return { status: "operational", ms, httpStatus: response.status };
+    if ((response.status >= 200 && response.status < 400) || response.status === 401 || response.status === 403) return { status: "operational", ms, httpStatus: response.status };
     if (response.status >= 500 || response.status === 408 || response.status === 429) return { status: "outage", ms, httpStatus: response.status };
     return { status: "degraded", ms, httpStatus: response.status };
   } finally { clearTimeout(timer); }

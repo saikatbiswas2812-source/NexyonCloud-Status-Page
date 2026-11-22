@@ -1,1 +1,211 @@
-const OWNER="saikatbiswas2812-source",REPO="NexyonCloud-Status-Page",BRANCH="main";let token="",services=[];const $=id=>document.getElementById(id);async function api(path,opts={}){const r=await fetch("https://api.github.com"+path,{...opts,headers:{Accept:"application/vnd.github+json",Authorization:"Bearer "+token,"X-GitHub-Api-Version":"2022-11-28",...(opts.body?{"Content-Type":"application/json"}:{}) ,...(opts.headers||{})}});const t=await r.text();if(!r.ok)throw Error("GitHub API "+r.status+": "+t.slice(0,220));return t?JSON.parse(t):{};}function b64(s){return btoa(unescape(encodeURIComponent(s)));}async function readFile(path){const x=await api("/repos/"+OWNER+"/"+REPO+"/contents/"+path+"?ref="+BRANCH);return {...x,text:decodeURIComponent(escape(atob(x.content.replace(/\n/g,""))))};}function draw(){$("editor").innerHTML=services.map((s,i)=>'<div class="editor-row"><input data-i="'+i+'" data-k="name" value="'+esc(s.name)+'" aria-label="Name"><input data-i="'+i+'" data-k="description" value="'+esc(s.description||"")+'" aria-label="Description"><input data-i="'+i+'" data-k="url" value="'+esc(s.url||"")+'" placeholder="https://health URL" aria-label="Health URL"><small>Automatic monitoring: <input style="width:auto" type="checkbox" data-i="'+i+'" data-k="enabled" '+(s.enabled!==false?"checked":"")+'> Enabled · Status is detected automatically from the health URL</small></div>').join("");document.querySelectorAll("#editor [data-k]").forEach(el=>el.addEventListener("change",()=>{const s=services[Number(el.dataset.i)],k=el.dataset.k;s[k]=el.type==="checkbox"?el.checked:el.value;}));$("incidentService").innerHTML='<option value="">General update</option>'+services.map((s,i)=>'<option value="'+i+'">'+esc(s.name)+'</option>').join("");}function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}$("connect").onclick=async()=>{token=$("token").value.trim();if(!token)return $("connectMsg").textContent="Enter a token.";try{await api("/repos/"+OWNER+"/"+REPO);const f=await readFile("config/services.json");services=JSON.parse(f.text).services;window.configSha=f.sha;draw();$("save").disabled=$("publish").disabled=false;try{sessionStorage.setItem("nexyoncloud_admin_token",token);}catch{}$("connectMsg").textContent="Connected. Token is kept for this tab session only and cleared when the tab is closed.";}catch(e){token="";try{sessionStorage.removeItem("nexyoncloud_admin_token");}catch{}$("connectMsg").textContent=e.message;}};async function restoreAdminSession(){try{const savedToken=sessionStorage.getItem("nexyoncloud_admin_token");if(savedToken&&!token){$("token").value=savedToken;await $("connect").onclick();}}catch{}}window.addEventListener("pageshow",restoreAdminSession);restoreAdminSession();$("save").onclick=async()=>{const button=$("save");button.disabled=true;try{document.querySelectorAll("#editor [data-k]").forEach(el=>{const s=services[Number(el.dataset.i)],k=el.dataset.k;s[k]=el.type==="checkbox"?el.checked:el.value.trim();});for(const s of services){s.name=String(s.name||"").trim();s.description=String(s.description||"").trim();s.url=String(s.url||"").trim();if(!s.name)throw Error("Service names are required.");if(s.enabled!==false&&!s.url)throw Error("Add a health URL or turn monitoring OFF for "+s.name+".");if(s.url&&!/^https?:\/\//i.test(s.url))throw Error("Health URLs must start with http:// or https://");}const payload=b64(JSON.stringify({services},null,2)+"\n");let saved=false,lastError;for(let attempt=0;attempt<4&&!saved;attempt++){try{const latest=await readFile("config/services.json");await api("/repos/"+OWNER+"/"+REPO+"/contents/config/services.json",{method:"PUT",body:JSON.stringify({message:"Update status page service configuration",content:payload,sha:latest.sha,branch:BRANCH})});saved=true;}catch(e){lastError=e;if(!String(e.message).includes("409")||attempt===3)throw e;await new Promise(resolve=>setTimeout(resolve,700*(attempt+1)));}}if(!saved)throw lastError;const fresh=await readFile("config/services.json");services=JSON.parse(fresh.text).services;draw();$("saveMsg").textContent="Saved to GitHub. A fresh automatic health check has been triggered; allow Actions to finish before checking the public page.";}catch(e){$("saveMsg").textContent=e.message;}finally{button.disabled=false;}};$("publish").onclick=async()=>{try{const title=$("incidentTitle").value.trim(),message=$("incidentMessage").value.trim();if(!title||!message)throw Error("Enter an incident title and message.");const f=await readFile("data/status.json"),d=JSON.parse(f.text),idx=$("incidentService").value;d.incidents=d.incidents||[];d.incidents.unshift({title,message,serviceName:idx===""?"General":services[Number(idx)].name,status:"investigating",time:new Date().toISOString()});d.updatedAt=new Date().toISOString();await api("/repos/"+OWNER+"/"+REPO+"/contents/data/status.json",{method:"PUT",body:JSON.stringify({message:"Publish status incident",content:b64(JSON.stringify(d,null,2)+"\n"),sha:f.sha,branch:BRANCH})});alert("Incident published.");}catch(e){alert(e.message);}};
+const OWNER = "saikatbiswas2812-source";
+const REPO = "NexyonCloud-Status-Page";
+const BRANCH = "main";
+let token = "";
+let services = [];
+const $ = id => document.getElementById(id);
+
+async function api(path, options = {}) {
+  const response = await fetch("https://api.github.com" + path, {
+    ...options,
+    cache: "no-store",
+    headers: {
+      Accept: "application/vnd.github+json",
+      Authorization: "Bearer " + token,
+      "X-GitHub-Api-Version": "2022-11-28",
+      "Cache-Control": "no-cache",
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(options.headers || {})
+    }
+  });
+  const body = await response.text();
+  if (!response.ok) {
+    let message = body;
+    try { message = JSON.parse(body).message || body; } catch {}
+    const error = new Error("GitHub API " + response.status + ": " + String(message).slice(0, 300));
+    error.status = response.status;
+    throw error;
+  }
+  return body ? JSON.parse(body) : {};
+}
+
+function b64(value) {
+  return btoa(unescape(encodeURIComponent(value)));
+}
+
+async function readFile(path) {
+  const result = await api(
+    "/repos/" + OWNER + "/" + REPO + "/contents/" + path +
+    "?ref=" + encodeURIComponent(BRANCH) + "&_=" + Date.now()
+  );
+  return {
+    ...result,
+    text: decodeURIComponent(escape(atob(result.content.replace(/\n/g, ""))))
+  };
+}
+
+// Always fetch the newest blob SHA immediately before each write.
+// If another admin tab or GitHub Action wins the race, fetch again and retry.
+async function writeFile(path, text, message) {
+  let lastError;
+  for (let attempt = 0; attempt < 8; attempt++) {
+    try {
+      const latest = await readFile(path);
+      return await api("/repos/" + OWNER + "/" + REPO + "/contents/" + path, {
+        method: "PUT",
+        body: JSON.stringify({
+          message,
+          content: b64(text),
+          sha: latest.sha,
+          branch: BRANCH
+        })
+      });
+    } catch (error) {
+      lastError = error;
+      if (error.status !== 409 || attempt === 7) throw error;
+      await new Promise(resolve => setTimeout(resolve, 400 * (attempt + 1)));
+    }
+  }
+  throw lastError;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[char]);
+}
+
+function draw() {
+  $("editor").innerHTML = services.map((service, index) =>
+    '<div class="editor-row">' +
+      '<input data-i="' + index + '" data-k="name" value="' + escapeHtml(service.name) + '" aria-label="Name">' +
+      '<input data-i="' + index + '" data-k="description" value="' + escapeHtml(service.description || "") + '" aria-label="Description">' +
+      '<input data-i="' + index + '" data-k="url" value="' + escapeHtml(service.url || "") + '" placeholder="https://health URL" aria-label="Health URL">' +
+      '<small>Automatic monitoring: <input style="width:auto" type="checkbox" data-i="' + index + '" data-k="enabled" ' +
+        (service.enabled !== false && service.url ? "checked" : "") +
+      '> Enabled · Status is detected automatically from the health URL</small>' +
+    '</div>'
+  ).join("");
+
+  document.querySelectorAll("#editor [data-k]").forEach(element => {
+    element.addEventListener("change", () => {
+      const service = services[Number(element.dataset.i)];
+      const key = element.dataset.k;
+      service[key] = element.type === "checkbox" ? element.checked : element.value;
+    });
+  });
+
+  $("incidentService").innerHTML =
+    '<option value="">General update</option>' +
+    services.map((service, index) =>
+      '<option value="' + index + '">' + escapeHtml(service.name) + '</option>'
+    ).join("");
+}
+
+$("connect").onclick = async () => {
+  token = $("token").value.trim();
+  if (!token) {
+    $("connectMsg").textContent = "Enter a token.";
+    return;
+  }
+
+  try {
+    await api("/repos/" + OWNER + "/" + REPO);
+    const file = await readFile("config/services.json");
+    services = JSON.parse(file.text).services || [];
+    draw();
+    $("save").disabled = false;
+    $("publish").disabled = false;
+    try { sessionStorage.setItem("nexyoncloud_admin_token", token); } catch {}
+    $("connectMsg").textContent = "Connected. Settings are loaded from the latest GitHub version.";
+  } catch (error) {
+    token = "";
+    try { sessionStorage.removeItem("nexyoncloud_admin_token"); } catch {}
+    $("connectMsg").textContent = error.message;
+  }
+};
+
+async function restoreAdminSession() {
+  try {
+    const savedToken = sessionStorage.getItem("nexyoncloud_admin_token");
+    if (savedToken && !token) {
+      $("token").value = savedToken;
+      await $("connect").onclick();
+    }
+  } catch {}
+}
+window.addEventListener("pageshow", restoreAdminSession);
+restoreAdminSession();
+
+$("save").onclick = async () => {
+  const button = $("save");
+  button.disabled = true;
+  $("saveMsg").textContent = "Saving settings to GitHub…";
+
+  try {
+    document.querySelectorAll("#editor [data-k]").forEach(element => {
+      const service = services[Number(element.dataset.i)];
+      const key = element.dataset.k;
+      service[key] = element.type === "checkbox" ? element.checked : element.value.trim();
+    });
+
+    for (const service of services) {
+      service.name = String(service.name || "").trim();
+      service.description = String(service.description || "").trim();
+      service.url = String(service.url || "").trim();
+
+      if (!service.name) throw new Error("Service names are required.");
+      if (service.url && !/^https?:\/\//i.test(service.url)) {
+        throw new Error("Health URLs must start with http:// or https://");
+      }
+
+      // An empty URL can never remain enabled or retain an old green status.
+      if (!service.url) service.enabled = false;
+      service.enabled = Boolean(service.url && service.enabled);
+    }
+
+    const config = JSON.stringify({ services }, null, 2) + "\n";
+    await writeFile("config/services.json", config, "Update status page service configuration");
+
+    const saved = await readFile("config/services.json");
+    services = JSON.parse(saved.text).services || [];
+    draw();
+    $("saveMsg").textContent =
+      "Saved successfully. Automatic monitoring has been triggered by the GitHub push. " +
+      "Wait for the Monitor workflow to finish, then refresh the public status page.";
+  } catch (error) {
+    $("saveMsg").textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+};
+
+$("publish").onclick = async () => {
+  try {
+    const title = $("incidentTitle").value.trim();
+    const message = $("incidentMessage").value.trim();
+    if (!title || !message) throw new Error("Enter an incident title and message.");
+
+    const file = await readFile("data/status.json");
+    const data = JSON.parse(file.text);
+    const index = $("incidentService").value;
+    data.incidents = data.incidents || [];
+    data.incidents.unshift({
+      title,
+      message,
+      serviceName: index === "" ? "General" : services[Number(index)].name,
+      status: "investigating",
+      time: new Date().toISOString()
+    });
+    data.updatedAt = new Date().toISOString();
+
+    await writeFile(
+      "data/status.json",
+      JSON.stringify(data, null, 2) + "\n",
+      "Publish status incident"
+    );
+    alert("Incident published.");
+  } catch (error) {
+    alert(error.message);
+  }
+};

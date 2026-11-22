@@ -1,1 +1,98 @@
-const DATA="https://raw.githubusercontent.com/saikatbiswas2812-source/NexyonCloud-Status-Page/main/data/status.json",labels={operational:"Operational",degraded:"Degraded",outage:"Major outage",maintenance:"Maintenance",unknown:"Not monitored"};const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));const pct=n=>n==null?"—":Number(n).toFixed(2)+"%";async function load(){try{const r=await fetch(DATA+"?t="+Date.now());if(!r.ok)throw Error("Status file not found");const d=await r.json(),ss=d.services||[],ii=d.incidents||[],down=ss.some(s=>s.status==="outage"),warn=ss.some(s=>["degraded","maintenance"].includes(s.status)),mon=ss.filter(s=>s.monitored);const o=document.querySelector("#overall");o.className="overall "+(down?"outage":warn?"degraded":"");o.innerHTML="<i></i>"+(down?"Service disruption detected":warn?"Some services need attention":mon.length?"All monitored services operational":"Monitoring setup in progress");document.querySelector("#meta").textContent=mon.length+" of "+ss.length+" services monitored · "+(ss.length-mon.length)+" not configured · Checks every "+(d.checkIntervalMinutes||5)+" minutes";document.querySelector("#services").innerHTML=ss.map(s=>'<article class="service"><div class="service-icon">◈</div><div class="info"><h3>'+esc(s.name)+'</h3><p>'+esc(s.description)+'</p><div class="stats"><span>24h <b>'+pct(s.uptime24h)+'</b></span><span>7d <b>'+pct(s.uptime7d)+'</b></span><span>30d <b>'+pct(s.uptime30d)+'</b></span>'+(s.responseMs!=null?'<span>Ping <b>'+esc(s.responseMs)+' ms</b></span>':'')+'</div></div><span class="status '+esc(s.status)+'">'+esc(labels[s.status]||s.status)+'</span></article>').join("")||'<p class="empty">No services configured.</p>';document.querySelector("#incidents").innerHTML=ii.length?ii.slice(0,30).map(i=>'<article class="incident"><div><b>'+esc(i.title)+'</b><p>'+esc(i.message)+'</p><small>'+esc(i.serviceName||"General")+" · "+esc(i.status||"investigating")+" · "+esc(i.time||"")+'</small></div></article>').join(""):'<p class="empty">No incidents recorded.</p>';document.querySelector("#updated").textContent="Updated "+(d.updatedAt?new Date(d.updatedAt).toLocaleString():"—");}catch(e){document.querySelector("#overall").textContent="Status data is not published yet";document.querySelector("#services").innerHTML='<p class="empty">Enable GitHub Actions and wait for the first monitoring run.</p>';}}document.querySelector("#year").textContent=new Date().getFullYear();load();setInterval(load,60000);
+const DATA = "https://raw.githubusercontent.com/saikatbiswas2812-source/NexyonCloud-Status-Page/main/data/status.json";
+const labels = {
+  operational: "Operational",
+  degraded: "Degraded",
+  outage: "Major outage",
+  maintenance: "Maintenance",
+  unknown: "Not monitored"
+};
+const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({
+  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+})[char]);
+const percent = value => value == null ? "—" : Number(value).toFixed(2) + "%";
+
+async function loadStatus() {
+  try {
+    const response = await fetch(DATA + "?t=" + Date.now(), { cache: "no-store" });
+    if (!response.ok) throw new Error("Status file not found");
+
+    const data = await response.json();
+    const services = data.services || [];
+    const incidents = data.incidents || [];
+    const monitored = services.filter(service => service.monitored);
+    const updatedAt = data.updatedAt ? new Date(data.updatedAt) : null;
+    const stale = !updatedAt || Date.now() - updatedAt.getTime() > 12 * 60 * 1000;
+
+    const down = services.some(service => service.monitored && service.status === "outage");
+    const warning = services.some(service =>
+      service.monitored && ["degraded", "maintenance"].includes(service.status)
+    );
+
+    const overall = document.querySelector("#overall");
+    overall.className = "overall " + (down ? "outage" : (warning || stale ? "degraded" : ""));
+    overall.innerHTML = "<i></i>" + (
+      stale ? "Monitoring checks are delayed" :
+      down ? "Service disruption detected" :
+      warning ? "Some services need attention" :
+      monitored.length ? "All monitored services operational" :
+      "Monitoring setup in progress"
+    );
+
+    document.querySelector("#meta").textContent =
+      monitored.length + " of " + services.length + " services monitored · " +
+      (services.length - monitored.length) + " not configured · Checks every " +
+      (data.checkIntervalMinutes || 5) + " minutes" +
+      (stale ? " · Last monitoring update is older than 12 minutes" : "");
+
+    document.querySelector("#services").innerHTML = services.map(service => {
+      const displayStatus = stale && service.monitored ? "unknown" : service.status;
+      const displayLabel = stale && service.monitored
+        ? "Check delayed"
+        : (labels[displayStatus] || displayStatus);
+
+      return '<article class="service">' +
+        '<div class="service-icon">◈</div>' +
+        '<div class="info">' +
+          '<h3>' + escapeHtml(service.name) + '</h3>' +
+          '<p>' + escapeHtml(service.description) + '</p>' +
+          '<div class="stats">' +
+            '<span>24h <b>' + percent(service.uptime24h) + '</b></span>' +
+            '<span>7d <b>' + percent(service.uptime7d) + '</b></span>' +
+            '<span>30d <b>' + percent(service.uptime30d) + '</b></span>' +
+            (service.responseMs != null
+              ? '<span>Ping <b>' + escapeHtml(service.responseMs) + ' ms</b></span>'
+              : '') +
+          '</div>' +
+        '</div>' +
+        '<span class="status ' + escapeHtml(displayStatus) + '">' +
+          escapeHtml(displayLabel) +
+        '</span>' +
+      '</article>';
+    }).join("") || '<p class="empty">No services configured.</p>';
+
+    document.querySelector("#incidents").innerHTML = incidents.length
+      ? incidents.slice(0, 30).map(incident =>
+          '<article class="incident"><div>' +
+            '<b>' + escapeHtml(incident.title) + '</b>' +
+            '<p>' + escapeHtml(incident.message) + '</p>' +
+            '<small>' + escapeHtml(incident.serviceName || "General") + " · " +
+              escapeHtml(incident.status || "investigating") + " · " +
+              escapeHtml(incident.time || "") +
+            '</small>' +
+          '</div></article>'
+        ).join("")
+      : '<p class="empty">No incidents recorded.</p>';
+
+    document.querySelector("#updated").textContent =
+      "Updated " + (updatedAt ? updatedAt.toLocaleString() : "—");
+  } catch (error) {
+    document.querySelector("#overall").className = "overall outage";
+    document.querySelector("#overall").textContent = "Status monitoring data unavailable";
+    document.querySelector("#services").innerHTML =
+      '<p class="empty">The latest monitoring data could not be loaded.</p>';
+  }
+}
+
+document.querySelector("#year").textContent = new Date().getFullYear();
+loadStatus();
+setInterval(loadStatus, 60000);

@@ -1,11 +1,24 @@
 {
-  "updatedAt": "2026-11-22T09:43:49.361Z",
+  "updatedAt": "2026-11-22T09:46:44.246Z",
   "checkIntervalMinutes": 5,
   "services": [
     {
       "id": "free-panel",
       "name": "Free Panel",
       "description": "Free hosting control panel",
+      "status": "outage",
+      "monitored": true,
+      "responseMs": 92,
+      "httpStatus": 403,
+      "lastCheckAt": "2026-11-22T09:46:44.246Z",
+      "uptime24h": 0,
+      "uptime7d": 0,
+      "uptime30d": 0
+    },
+    {
+      "id": "paid-panel",
+      "name": "Paid Panel",
+      "description": "Premium hosting control panel",
       "status": "unknown",
       "monitored": false,
       "responseMs": null,
@@ -14,19 +27,6 @@
       "uptime24h": null,
       "uptime7d": null,
       "uptime30d": null
-    },
-    {
-      "id": "paid-panel",
-      "name": "Paid Panel",
-      "description": "Premium hosting control panel",
-      "status": "outage",
-      "monitored": true,
-      "responseMs": 79,
-      "httpStatus": 403,
-      "lastCheckAt": "2026-11-22T09:43:49.361Z",
-      "uptime24h": 0,
-      "uptime7d": 0,
-      "uptime30d": 0
     },
     {
       "id": "vps-panel",
@@ -92,11 +92,11 @@
     }
   ],
   "history": {
-    "paid-panel": [
+    "free-panel": [
       {
-        "at": "2026-11-22T09:43:49.361Z",
+        "at": "2026-11-22T09:46:44.246Z",
         "ok": 0,
-        "ms": 79
+        "ms": 92
       }
     ]
   }

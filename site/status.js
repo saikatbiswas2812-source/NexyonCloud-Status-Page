@@ -1,4 +1,4 @@
-const DATA = "https://raw.githubusercontent.com/saikatbiswas2812-source/NexyonCloud-Status-Page/main/data/status.json";
+const DATA = "./data/status.json";
 const labels = {
   operational: "Operational",
   degraded: "Degraded",

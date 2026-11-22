@@ -3,6 +3,7 @@ const REPO = "NexyonCloud-Status-Page";
 const BRANCH = "main";
 let token = "";
 let services = [];
+let servicesSha = null;
 const $ = id => document.getElementById(id);
 
 async function api(path, options = {}) {
@@ -55,11 +56,16 @@ async function readFile(path) {
 
 // Always fetch the newest blob SHA immediately before each write.
 // If another admin tab or GitHub Action wins the race, fetch again and retry.
-async function writeFile(path, text, message) {
+async function writeFile(path, text, message, expectedSha = null) {
   let lastError;
   for (let attempt = 0; attempt < 8; attempt++) {
     try {
       const latest = await readFile(path);
+      if (expectedSha && latest.sha !== expectedSha) {
+        const error = new Error("These settings changed in GitHub after this page was loaded. Reconnect to load the latest settings before saving; this prevents an old tab from overwriting newer configuration.");
+        error.status = 412;
+        throw error;
+      }
       return await api("/repos/" + OWNER + "/" + REPO + "/contents/" + path, {
         method: "PUT",
         body: JSON.stringify({
@@ -122,6 +128,7 @@ $("connect").onclick = async () => {
     await api("/repos/" + OWNER + "/" + REPO);
     const file = await readFile("config/services.json");
     services = JSON.parse(file.text).services || [];
+    servicesSha = file.sha;
     draw();
     $("save").disabled = false;
     $("publish").disabled = false;
@@ -174,10 +181,10 @@ $("save").onclick = async () => {
     }
 
     const config = JSON.stringify({ services }, null, 2) + "\n";
-    await writeFile("config/services.json", config, "Update status page service configuration");
-
+    const result = await writeFile("config/services.json", config, "Update status page service configuration", servicesSha);
     const saved = await readFile("config/services.json");
     services = JSON.parse(saved.text).services || [];
+    servicesSha = saved.sha;
     draw();
     $("saveMsg").textContent =
       "Saved successfully. Automatic monitoring has been triggered by the GitHub push. " +

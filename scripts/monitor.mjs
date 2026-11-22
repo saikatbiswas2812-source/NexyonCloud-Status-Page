@@ -97,7 +97,7 @@ for (const service of config.services || []) {
     id: service.id, name: service.name, description: service.description || "",
     status, monitored: enabled, responseMs, httpStatus,
     lastCheckAt: enabled ? now.toISOString() : null,
-    uptime24h: uptime(24), uptime7d: uptime(168), uptime30d: uptime(720)
+    uptime24h: enabled ? uptime(24) : null, uptime7d: enabled ? uptime(168) : null, uptime30d: enabled ? uptime(720) : null
   };
   services.push(item);
   if (enabled && old.status && old.status !== status && old.status !== "unknown") {

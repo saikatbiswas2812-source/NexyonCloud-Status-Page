@@ -90,8 +90,8 @@ async function checkUrl(raw) {
       redirect: "follow",
       signal: controller.signal,
       headers: {
-        "user-agent": "NexyonCloud-Status-Monitor/2.1",
-        "cache-control": "no-cache"
+        "user-agent": "Mozilla/5.0 (compatible; NexyonCloud-Status-Monitor/3.0; +https://nexyoncloud.fun)",
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
       }
     });
 
@@ -125,15 +125,24 @@ for (const service of config.services || []) {
   let detail = "No health URL configured";
 
   if (enabled) {
-    try {
-      const result = await checkUrl(url);
-      status = result.status;
-      responseMs = result.responseMs;
-      httpStatus = result.httpStatus;
-      detail = result.detail || ("HTTP " + result.httpStatus);
-    } catch (error) {
+    let lastError = null;
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const result = await checkUrl(url);
+        status = result.status;
+        responseMs = result.responseMs;
+        httpStatus = result.httpStatus;
+        detail = result.detail || ("HTTP " + result.httpStatus);
+        lastError = null;
+        break;
+      } catch (error) {
+        lastError = error;
+        if (attempt < 2) await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+    }
+    if (lastError) {
       status = "outage";
-      detail = error.name === "AbortError" ? "Health check timed out" : error.message;
+      detail = lastError.name === "AbortError" ? "Health check timed out" : lastError.message;
       console.error(service.name + ":", detail);
     }
 
@@ -171,6 +180,7 @@ for (const service of config.services || []) {
     monitored: enabled,
     responseMs,
     httpStatus,
+    detail: enabled ? detail : null,
     lastCheckAt: enabled ? now.toISOString() : null,
     uptime24h: enabled ? uptime(24) : null,
     uptime7d: enabled ? uptime(168) : null,

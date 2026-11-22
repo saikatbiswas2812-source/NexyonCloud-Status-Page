@@ -1,14 +1,16 @@
 {
-  "updatedAt": "2026-11-22T08:54:59.812Z",
+  "updatedAt": "2026-11-22T09:01:50.357Z",
   "checkIntervalMinutes": 5,
   "services": [
     {
       "id": "free-panel",
       "name": "Free Panel",
       "description": "Free hosting control panel",
-      "status": "outage",
+      "status": "degraded",
       "monitored": true,
-      "responseMs": 107,
+      "responseMs": 97,
+      "httpStatus": 403,
+      "lastCheckAt": "2026-11-22T09:01:50.357Z",
       "uptime24h": 0,
       "uptime7d": 0,
       "uptime30d": 0
@@ -20,6 +22,8 @@
       "status": "unknown",
       "monitored": false,
       "responseMs": null,
+      "httpStatus": null,
+      "lastCheckAt": null,
       "uptime24h": null,
       "uptime7d": null,
       "uptime30d": null
@@ -31,6 +35,8 @@
       "status": "unknown",
       "monitored": false,
       "responseMs": null,
+      "httpStatus": null,
+      "lastCheckAt": null,
       "uptime24h": null,
       "uptime7d": null,
       "uptime30d": null
@@ -42,6 +48,8 @@
       "status": "unknown",
       "monitored": false,
       "responseMs": null,
+      "httpStatus": null,
+      "lastCheckAt": null,
       "uptime24h": null,
       "uptime7d": null,
       "uptime30d": null
@@ -53,12 +61,21 @@
       "status": "unknown",
       "monitored": false,
       "responseMs": null,
+      "httpStatus": null,
+      "lastCheckAt": null,
       "uptime24h": null,
       "uptime7d": null,
       "uptime30d": null
     }
   ],
   "incidents": [
+    {
+      "title": "Free Panel is degraded",
+      "message": "Automated health check result: HTTP 403.",
+      "serviceName": "Free Panel",
+      "status": "investigating",
+      "time": "2026-11-22T09:01:50.357Z"
+    },
     {
       "title": "Free Panel is down",
       "message": "Automated HTTP health check failed.",
@@ -78,6 +95,11 @@
         "at": "2026-11-22T08:54:59.812Z",
         "ok": 0,
         "ms": 107
+      },
+      {
+        "at": "2026-11-22T09:01:50.357Z",
+        "ok": 0,
+        "ms": 97
       }
     ]
   }

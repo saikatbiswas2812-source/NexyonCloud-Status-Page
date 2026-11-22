@@ -66,6 +66,9 @@ async function loadStatus() {
             (service.responseMs != null
               ? '<span>Ping <b>' + escapeHtml(service.responseMs) + ' ms</b></span>'
               : '') +
+            (service.monitored && service.detail
+              ? '<span>Check <b>' + escapeHtml(service.detail) + '</b></span>'
+              : '') +
           '</div>' +
         '</div>' +
         '<span class="status ' + escapeHtml(displayStatus) + '">' +

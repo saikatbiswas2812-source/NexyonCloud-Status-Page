@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-23T11:17:16.317Z",
+  "updatedAt": "2026-11-23T22:45:15.517Z",
   "checkIntervalMinutes": 5,
   "services": [
     {
@@ -22,10 +22,10 @@
       "description": "Premium hosting control panel",
       "status": "outage",
       "monitored": true,
-      "responseMs": 108,
+      "responseMs": 191,
       "httpStatus": 403,
       "detail": "HTTP 403",
-      "lastCheckAt": "2026-11-23T11:17:16.317Z",
+      "lastCheckAt": "2026-11-23T22:45:15.517Z",
       "uptime24h": 0,
       "uptime7d": 0,
       "uptime30d": 0
@@ -100,6 +100,11 @@
         "at": "2026-11-23T11:17:16.317Z",
         "ok": 0,
         "ms": 108
+      },
+      {
+        "at": "2026-11-23T22:45:15.517Z",
+        "ok": 0,
+        "ms": 191
       }
     ]
   }
